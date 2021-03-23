@@ -255,7 +255,7 @@ class GatherRunner {
     // mimeType is determined by the browser, we assume Chrome is determining mimeType correctly,
     // independently of 'Content-Type' response headers, and always sending mimeType if well-formed.
     if (HTML_MIME_TYPE !== finalRecord.mimeType) {
-      return new LHError(LHError.errors.NOT_HTML, {mimeType: finalRecord.mimeType});
+      //return new LHError(LHError.errors.NOT_HTML, {mimeType: finalRecord.mimeType});
     }
     return undefined;
   }
