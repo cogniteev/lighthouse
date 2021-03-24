@@ -180,9 +180,10 @@ class GatherRunner {
   /**
    * Returns an error if the original network request failed or wasn't found.
    * @param {LH.Artifacts.NetworkRequest|undefined} mainRecord
+   * @param {string|undefined} docErrorCodeMode
    * @return {LH.LighthouseError|undefined}
    */
-  static getNetworkError(mainRecord) {
+  static getNetworkError(mainRecord, docErrorCodeMode) {
     if (!mainRecord) {
       return new LHError(LHError.errors.NO_DOCUMENT_REQUEST);
     } else if (mainRecord.failed) {
@@ -201,7 +202,7 @@ class GatherRunner {
           {errorDetails: netErr}
         );
       }
-    } else if (mainRecord.hasErrorStatusCode()) {
+    } else if (mainRecord.hasErrorStatusCode() && docErrorCodeMode !== 'ignore') {
       return new LHError(
         LHError.errors.ERRORED_DOCUMENT_REQUEST,
         {statusCode: `${mainRecord.statusCode}`}
@@ -282,7 +283,7 @@ class GatherRunner {
       finalRecord = NetworkAnalyzer.resolveRedirects(mainRecord);
     }
 
-    const networkError = GatherRunner.getNetworkError(mainRecord);
+    const networkError = GatherRunner.getNetworkError(mainRecord, passContext.passConfig.docErrorCodeMode);
     const interstitialError = GatherRunner.getInterstitialError(mainRecord, networkRecords);
     const nonHtmlError = GatherRunner.getNonHtmlError(finalRecord);
 

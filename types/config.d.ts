@@ -64,6 +64,12 @@ declare global {
          * Ignore means a failure is expected and no action should be taken.
          */
         loadFailureMode?: 'fatal'|'warn'|'ignore';
+        /**
+         * Whether the behavior when the document returns and error code.
+         * Error means Lighthouse will treat it as a runtimeError
+         * Ignore means Lighthouse will run normally
+         */
+        docErrorCodeMode?: 'error'|'ignore';
         /** The number of milliseconds to wait after FCP until the page should be considered loaded. */
         pauseAfterFcpMs?: number;
         /** The number of milliseconds to wait after the load event until the page should be considered loaded. */
