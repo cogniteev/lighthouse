@@ -294,6 +294,39 @@ function waitForLoadEvent(session, pauseAfterLoadMs) {
   };
 }
 
+/**
+ * Return a promise that resolves if the navigation is aborted.
+ * @param {LH.Gatherer.FRProtocolSession} session
+ * @param {NetworkMonitor} networkMonitor
+ * @return {CancellableWait}
+ */
+function waitForNavigationAborted(session, networkMonitor) {
+  /** @type {(() => void)} */
+  let cancel = () => {
+    throw new Error('waitForNavigationAborted.cancel() called before it was defined');
+  };
+
+  /** @type {Promise<void>} */
+  const promise = new Promise((resolve, reject) => {
+    const abortListener = function() {
+      cancel();
+      resolve();
+    };
+    networkMonitor.once('network-navigation-aborted', abortListener);
+
+    let canceled = false;
+    cancel = () => {
+      if (canceled) return;
+      canceled = true;
+      networkMonitor.removeListener('network-navigation-aborted', abortListener);
+    };
+  });
+
+  return {
+    promise,
+    cancel,
+  };
+}
 
 /**
  * Returns whether the page appears to be hung.
@@ -363,6 +396,9 @@ async function waitForFullyLoaded(session, networkMonitor, options) {
   });
   // CPU listener. Resolves when the CPU has been idle for cpuQuietThresholdMs after network idle.
   let resolveOnCPUIdle = waitForNothing();
+  // Abort listener. Resolves if the navigation is aborted by the browser
+  // Used to short circuit the sleep & wait for metrics
+  const resolveOnNavigationAborted = waitForNavigationAborted(session, networkMonitor);
 
   // Wait for all initial load promises. Resolves on cleanup function the clears load
   // timeout timer.
@@ -409,8 +445,20 @@ async function waitForFullyLoaded(session, networkMonitor, options) {
     };
   });
 
+  // Abort listener
+  // used to short circuit the loadPromise if the navigation is aborted & avoid hanging until timeout
+  /** @type {Promise<() => Promise<{timedOut: boolean}>>} */
+  const navigationAbortedPromise = resolveOnNavigationAborted.promise
+    .then(_ => {
+      return async () => {
+        log.warn('waitFor', 'Request aborted');
+        return {timedOut: false};
+      };
+    });
+
   // Wait for load or timeout and run the cleanup function the winner returns.
   const cleanupFn = await Promise.race([
+    navigationAbortedPromise,
     loadPromise,
     maxTimeoutPromise,
   ]);
@@ -420,6 +468,7 @@ async function waitForFullyLoaded(session, networkMonitor, options) {
   resolveOnLoadEvent.cancel();
   resolveOnNetworkIdle.cancel();
   resolveOnCPUIdle.cancel();
+  resolveOnNavigationAborted.cancel();
 
   return cleanupFn();
 }

@@ -17,7 +17,7 @@ const NetworkRequest = require('../../lib/network-request.js');
 const URL = require('../../lib/url-shim.js');
 
 /** @typedef {import('../../lib/network-recorder.js').NetworkRecorderEvent} NetworkRecorderEvent */
-/** @typedef {'network-2-idle'|'network-critical-idle'|'networkidle'|'networkbusy'|'network-critical-busy'|'network-2-busy'} NetworkMonitorEvent_ */
+/** @typedef {'network-2-idle'|'network-critical-idle'|'networkidle'|'networkbusy'|'network-critical-busy'|'network-2-busy'|'network-navigation-aborted'} NetworkMonitorEvent_ */
 /** @typedef {NetworkRecorderEvent|NetworkMonitorEvent_} NetworkMonitorEvent */
 
 class NetworkMonitor extends EventEmitter {
@@ -138,6 +138,24 @@ class NetworkMonitor extends EventEmitter {
   }
 
   /**
+   * Returns whether the navigation was aborted
+   */
+  isNavigationAborted() {
+    if (!this._networkRecorder) return false;
+    const requests = this._networkRecorder.getRawRecords();
+    const rootFrameRequest = requests.find(r => r.resourceType === 'Document');
+    const rootFrameId = rootFrameRequest && rootFrameRequest.frameId;
+
+    return this._isActiveIdlePeriod(
+      0,
+      request =>
+        request.frameId === rootFrameId &&
+        (request.priority === 'VeryHigh' || request.priority === 'High') &&
+        request.failed
+    );
+  }
+
+  /**
    * Returns whether the network is semi-idle (i.e. there are 2 or fewer inflight network requests).
    */
   is2Idle() {
@@ -174,10 +192,14 @@ class NetworkMonitor extends EventEmitter {
     const zeroQuiet = this.isIdle();
     const twoQuiet = this.is2Idle();
     const criticalQuiet = this.isCriticalIdle();
+    const navigationAborted = this.isNavigationAborted();
 
     this.emit(zeroQuiet ? 'networkidle' : 'networkbusy');
     this.emit(twoQuiet ? 'network-2-idle' : 'network-2-busy');
     this.emit(criticalQuiet ? 'network-critical-idle' : 'network-critical-busy');
+    if (navigationAborted) {
+      this.emit('network-navigation-aborted');
+    }
 
     if (twoQuiet && zeroQuiet) log.verbose('NetworkRecorder', 'network fully-quiet');
     else if (twoQuiet && !zeroQuiet) log.verbose('NetworkRecorder', 'network semi-quiet');
