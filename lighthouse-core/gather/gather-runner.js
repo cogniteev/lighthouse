@@ -244,9 +244,10 @@ class GatherRunner {
    * Returns an error if we try to load a non-HTML page.
    * Expects a network request with all redirects resolved, otherwise the MIME type may be incorrect.
    * @param {LH.Artifacts.NetworkRequest|undefined} finalRecord
+   * @param {string|undefined} nonHtmlErrorMode
    * @return {LH.LighthouseError|undefined}
    */
-  static getNonHtmlError(finalRecord) {
+  static getNonHtmlError(finalRecord, nonHtmlErrorMode) {
     // MIME types are case-insenstive but Chrome normalizes MIME types to be lowercase.
     const HTML_MIME_TYPE = 'text/html';
 
@@ -255,8 +256,8 @@ class GatherRunner {
 
     // mimeType is determined by the browser, we assume Chrome is determining mimeType correctly,
     // independently of 'Content-Type' response headers, and always sending mimeType if well-formed.
-    if (HTML_MIME_TYPE !== finalRecord.mimeType) {
-      //return new LHError(LHError.errors.NOT_HTML, {mimeType: finalRecord.mimeType});
+    if (HTML_MIME_TYPE !== finalRecord.mimeType && nonHtmlErrorMode !== 'ignore') {
+      return new LHError(LHError.errors.NOT_HTML, {mimeType: finalRecord.mimeType});
     }
     return undefined;
   }
@@ -285,7 +286,7 @@ class GatherRunner {
 
     const networkError = GatherRunner.getNetworkError(mainRecord, passContext.passConfig.docErrorCodeMode);
     const interstitialError = GatherRunner.getInterstitialError(mainRecord, networkRecords);
-    const nonHtmlError = GatherRunner.getNonHtmlError(finalRecord);
+    const nonHtmlError = GatherRunner.getNonHtmlError(finalRecord, passContext.passConfig.nonHtmlErrorMode);
 
     // Check to see if we need to ignore the page load failure.
     // e.g. When the driver is offline, the load will fail without page offline support.

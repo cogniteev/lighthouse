@@ -70,6 +70,12 @@ declare global {
          * Ignore means Lighthouse will run normally
          */
         docErrorCodeMode?: 'error'|'ignore';
+        /**
+         * Controls the behavior when the document returns a non-HTML mime type.
+         * Error means Lighthouse will treat it as a runtimeError
+         * Ignore means Lighthouse will try run normally
+         */
+        nonHtmlErrorMode?: 'error'|'ignore';
         /** The number of milliseconds to wait after FCP until the page should be considered loaded. */
         pauseAfterFcpMs?: number;
         /** The number of milliseconds to wait after the load event until the page should be considered loaded. */
