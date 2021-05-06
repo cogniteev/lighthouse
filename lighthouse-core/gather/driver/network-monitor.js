@@ -146,12 +146,12 @@ class NetworkMonitor extends EventEmitter {
     const rootFrameRequest = requests.find(r => r.resourceType === 'Document');
     const rootFrameId = rootFrameRequest && rootFrameRequest.frameId;
 
-    return this._isActiveIdlePeriod(
-      0,
-      request =>
-        request.frameId === rootFrameId &&
-        (request.priority === 'VeryHigh' || request.priority === 'High') &&
-        request.failed
+    return requests.some(req =>
+      req.resourceType === 'Document' &&
+      req.frameId === rootFrameId &&
+      (req.priority === 'VeryHigh' || req.priority === 'High') &&
+      req.finished &&
+      req.failed
     );
   }
 
