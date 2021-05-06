@@ -1,6 +1,6 @@
 {
   "name": "lighthouse",
-  "version": "7.3.0-patch.2",
+  "version": "7.3.0-patch.3",
   "description": "Automated auditing, performance metrics, and best practices for the web.",
   "main": "./lighthouse-core/index.js",
   "bin": {
