@@ -88,6 +88,12 @@ class Driver {
    * @type {number}
    * @private
    */
+  _defaultProtocolTimeout = DEFAULT_PROTOCOL_TIMEOUT;
+
+  /**
+   * @type {number}
+   * @private
+   */
   _nextProtocolTimeout = DEFAULT_PROTOCOL_TIMEOUT;
 
   online = true;
@@ -253,10 +259,25 @@ class Driver {
   }
 
   /**
+   * timeout used by default for calls to 'sendCommand'
+   * @param {number} timeout
+   */
+  setDefaultProtocolTimeout(timeout) {
+    this._defaultProtocolTimeout = timeout;
+  }
+
+  /**
+   * @return {number}
+   */
+  getDefaultProtocolTimeout() {
+    return this._defaultProtocolTimeout;
+  }
+
+  /**
    * @return {boolean}
    */
   hasNextProtocolTimeout() {
-    return this._nextProtocolTimeout !== DEFAULT_PROTOCOL_TIMEOUT;
+    return this._nextProtocolTimeout !== this._defaultProtocolTimeout;
   }
 
   /**
@@ -335,7 +356,7 @@ class Driver {
    */
   sendCommandToSession(method, sessionId, ...params) {
     const timeout = this._nextProtocolTimeout;
-    this._nextProtocolTimeout = DEFAULT_PROTOCOL_TIMEOUT;
+    this._nextProtocolTimeout = this._defaultProtocolTimeout;
     return new Promise(async (resolve, reject) => {
       const asyncTimeout = setTimeout((() => {
         const err = new LHError(

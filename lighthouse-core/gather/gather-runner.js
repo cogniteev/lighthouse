@@ -128,6 +128,9 @@ class GatherRunner {
     const status = {msg: 'Initializing…', id: 'lh:gather:setupDriver'};
     log.time(status);
     const resetStorage = !options.settings.disableStorageReset;
+    if (typeof options.settings.protocolTimeoutMs === 'number') {
+      await driver.setDefaultProtocolTimeout(options.settings.protocolTimeoutMs);
+    }
     await driver.assertNoSameOriginServiceWorkerClients(options.requestedUrl);
     await driver.beginEmulation(options.settings);
     await driver.enableRuntimeEvents();

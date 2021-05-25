@@ -50,6 +50,19 @@ class ProtocolSession {
   }
 
   /**
+   * @param {number} ms
+   */
+  setDefaultProtocolTimeout(ms) { // eslint-disable-line no-unused-vars
+  }
+
+  /**
+   * @return {number}
+   */
+  getDefaultProtocolTimeout() {
+    return Number.MAX_SAFE_INTEGER;
+  }
+
+  /**
    * Bind listeners for protocol events.
    * @template {keyof LH.CrdpEvents} E
    * @param {E} eventName
