@@ -364,7 +364,7 @@ const DEFAULT_WAIT_FUNCTIONS = {waitForFcp, waitForLoadEvent, waitForCPUIdle, wa
  * @param {LH.Gatherer.FRProtocolSession} session
  * @param {NetworkMonitor} networkMonitor
  * @param {WaitOptions} options
- * @return {Promise<{timedOut: boolean}>}
+ * @return {Promise<{timedOut: boolean, pageHung: boolean}>}
  */
 async function waitForFullyLoaded(session, networkMonitor, options) {
   const {pauseAfterFcpMs, pauseAfterLoadMs, networkQuietThresholdMs,
@@ -402,7 +402,7 @@ async function waitForFullyLoaded(session, networkMonitor, options) {
 
   // Wait for all initial load promises. Resolves on cleanup function the clears load
   // timeout timer.
-  /** @type {Promise<() => Promise<{timedOut: boolean}>>} */
+  /** @type {Promise<() => Promise<{timedOut: boolean, pageHung: boolean}>>} */
   const loadPromise = Promise.all([
     resolveOnFcp.promise,
     resolveOnLoadEvent.promise,
@@ -412,10 +412,10 @@ async function waitForFullyLoaded(session, networkMonitor, options) {
     resolveOnCPUIdle = waitForCPUIdle(session, cpuQuietThresholdMs);
     return resolveOnCPUIdle.promise;
   }).then(() => {
-    /** @return {Promise<{timedOut: boolean}>} */
+    /** @return {Promise<{timedOut: boolean, pageHung: boolean}>} */
     const cleanupFn = async function() {
       log.verbose('waitFor', 'loadEventFired and network considered idle');
-      return {timedOut: false};
+      return {timedOut: false, pageHung: false};
     };
 
     return cleanupFn;
@@ -428,7 +428,7 @@ async function waitForFullyLoaded(session, networkMonitor, options) {
 
   // Last resort timeout. Resolves maxWaitForLoadedMs ms from now on
   // cleanup function that removes loadEvent and network idle listeners.
-  /** @type {Promise<() => Promise<{timedOut: boolean}>>} */
+  /** @type {Promise<() => Promise<{timedOut: boolean, pageHung: boolean}>>} */
   const maxTimeoutPromise = new Promise((resolve, reject) => {
     maxTimeoutHandle = setTimeout(resolve, maxWaitForLoadedMs);
   }).then(_ => {
@@ -438,21 +438,20 @@ async function waitForFullyLoaded(session, networkMonitor, options) {
         log.warn('waitFor', 'Page appears to be hung, killing JavaScript...');
         await session.sendCommand('Emulation.setScriptExecutionDisabled', {value: true});
         await session.sendCommand('Runtime.terminateExecution');
-        throw new LHError(LHError.errors.PAGE_HUNG);
+        return {timedOut: true, pageHung: true};
       }
-
-      return {timedOut: true};
+      return {timedOut: true, pageHung: false};
     };
   });
 
   // Abort listener
   // used to short circuit the loadPromise if the navigation is aborted & avoid hanging until timeout
-  /** @type {Promise<() => Promise<{timedOut: boolean}>>} */
+  /** @type {Promise<() => Promise<{timedOut: boolean, pageHung: boolean}>>} */
   const navigationAbortedPromise = resolveOnNavigationAborted.promise
     .then(_ => {
       return async () => {
         log.warn('waitFor', 'Request aborted');
-        return {timedOut: false};
+        return {timedOut: false, pageHung: false};
       };
     });
 

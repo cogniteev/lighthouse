@@ -33,6 +33,10 @@ const UIStrings = {
   warningTimeout: 'The page loaded too slowly to finish within the time limit. ' +
   'Results may be incomplete.',
   /**
+   * @description Warning that Lighthouse had a page unresponsive to commands.
+   */
+  warningPageHung: 'The page was not responding. Results may be incomplete.',
+  /**
    * @description Warning that the host device where Lighthouse is running appears to have a slower
    * CPU than the expected Lighthouse baseline.
    */
@@ -97,13 +101,14 @@ class GatherRunner {
     };
     log.time(status);
     try {
-      const {finalUrl, timedOut} = await driver.gotoURL(passContext.url, {
+      const {finalUrl, timedOut, pageHung} = await driver.gotoURL(passContext.url, {
         waitForFcp: passContext.passConfig.recordTrace,
         waitForLoad: true,
         passContext,
       });
       passContext.url = finalUrl;
       if (timedOut) passContext.LighthouseRunWarnings.push(str_(UIStrings.warningTimeout));
+      if (pageHung) passContext.LighthouseRunWarnings.push(str_(UIStrings.warningPageHung));
     } catch (err) {
       // If it's one of our loading-based LHErrors, we'll treat it as a page load error.
       if (err.code === 'NO_FCP' || err.code === 'PAGE_HUNG') {

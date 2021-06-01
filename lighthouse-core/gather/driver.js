@@ -524,7 +524,7 @@ class Driver {
    * Resolves on the url of the loaded page, taking into account any redirects.
    * @param {string} url
    * @param {{waitForFcp?: boolean, waitForLoad?: boolean, waitForNavigated?: boolean, passContext?: LH.Gatherer.PassContext}} options
-   * @return {Promise<{finalUrl: string, timedOut: boolean}>}
+   * @return {Promise<{finalUrl: string, timedOut: boolean, pageHung: boolean}>}
    */
   async gotoURL(url, options = {}) {
     const waitForFcp = options.waitForFcp || false;
@@ -554,6 +554,7 @@ class Driver {
     const waitforPageNavigateCmd = this._innerSendCommand('Page.navigate', undefined, {url});
 
     let timedOut = false;
+    let pageHung = false;
     if (waitForNavigated) {
       await waitForFrameNavigated(this).promise;
     } else if (waitForLoad) {
@@ -577,7 +578,13 @@ class Driver {
       const waitOptions = {pauseAfterFcpMs, pauseAfterLoadMs, networkQuietThresholdMs,
         cpuQuietThresholdMs, maxWaitForLoadedMs: maxWaitMs, maxWaitForFcpMs: maxFCPMs};
       const loadResult = await waitForFullyLoaded(this, this._networkMonitor, waitOptions);
+
+      if (loadResult.pageHung && passConfig.pageHungMode !== 'ignore') {
+        throw new LHError(LHError.errors.PAGE_HUNG);
+      }
+
       timedOut = loadResult.timedOut;
+      pageHung = loadResult.pageHung;
     }
 
     const finalUrl = await this._networkMonitor.getFinalNavigationUrl() || url;
@@ -589,6 +596,7 @@ class Driver {
     return {
       finalUrl,
       timedOut,
+      pageHung,
     };
   }
 
