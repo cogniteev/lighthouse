@@ -166,7 +166,8 @@ declare global {
       disableStorageReset?: boolean;
       /** Controls how long to wait for a response after sending a DevTools protocol command. */
       protocolTimeoutMs?: number;
-
+      /** Controls how long to wait for the execution of all audits.**/
+      auditsTimeoutMs?: number;
       /** How Lighthouse should interpret this run in regards to scoring performance metrics and skipping mobile-only tests in desktop. Must be set even if throttling/emulation is being applied outside of Lighthouse. */
       formFactor?: 'mobile'|'desktop';
       /** Screen emulation properties (width, height, dpr, mobile viewport) to apply or an object of `{disabled: true}` if Lighthouse should avoid applying screen emulation. If either emulation is applied outside of Lighthouse, or it's being run on a mobile device, it typically should be set to disabled. For desktop, we recommend applying consistent desktop screen emulation. */

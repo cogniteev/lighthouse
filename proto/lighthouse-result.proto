@@ -59,6 +59,8 @@ enum LighthouseError {
   NOT_HTML = 21;
   // The trace did not contain a ResourceSendRequest event.
   NO_RESOURCE_REQUEST = 22;
+  // Audits timeout
+  AUDITS_TIMEOUT = 23;
 }
 
 // The overarching Lighthouse Response object (LHR)

@@ -244,6 +244,7 @@ class Runner {
    * @return {Promise<Record<string, LH.RawIcu<LH.Audit.Result>>>}
    */
   static async _runAudits(settings, audits, artifacts, runWarnings) {
+    const startedAt = new Date().getTime();
     const status = {msg: 'Analyzing and running audits...', id: 'lh:runner:auditing'};
     log.time(status);
 
@@ -270,6 +271,10 @@ class Runner {
       computedCache: new Map(),
     };
 
+    const auditsTimeoutMs = settings.auditsTimeoutMs !== undefined
+      ? settings.auditsTimeoutMs
+      : Number.MAX_SAFE_INTEGER;
+
     // Run each audit sequentially
     /** @type {Record<string, LH.RawIcu<LH.Audit.Result>>} */
     const auditResultsById = {};
@@ -278,6 +283,13 @@ class Runner {
       const auditResult = await Runner._runAudit(auditDefn, artifacts, sharedAuditContext,
           runWarnings);
       auditResultsById[auditId] = auditResult;
+
+      // ensure we did not reached timeout yet
+      // we could still have an issue if a single audit takes a huge amount of time but this is
+      // an easy implementation that will be sufficient for now
+      if ((new Date().getTime() - startedAt) > auditsTimeoutMs) {
+        throw new LHError(LHError.errors.AUDITS_TIMEOUT);
+      }
     }
 
     log.timeEnd(status);
