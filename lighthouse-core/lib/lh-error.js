@@ -52,6 +52,8 @@ const UIStrings = {
   internalChromeError: 'An internal Chrome error occurred. Please restart Chrome and try re-running Lighthouse.',
   /** Error message explaining that fetching the resources of the webpage has taken longer than the maximum time. */
   requestContentTimeout: 'Fetching resource content has exceeded the allotted time',
+  /** Error message explaining that auditing the webpage has taken longer than the maximum time. */
+  auditsTimeout: 'Auditing content has exceeded the allotted time',
   /**
    * @description Error message explaining that the webpage is non-HTML, so audits are ill-defined.
    * @example {application/xml} mimeType
@@ -407,6 +409,15 @@ const ERRORS = {
   ERRORED_REQUIRED_ARTIFACT: {
     code: 'ERRORED_REQUIRED_ARTIFACT',
     message: UIStrings.erroredRequiredArtifact,
+  },
+
+  /**
+   * Reached audits timeout before the end of execution.
+   */
+  AUDITS_TIMEOUT: {
+    code: 'AUDITS_TIMEOUT',
+    message: UIStrings.auditsTimeout,
+    lhrRuntimeError: true,
   },
 
   // Hey! When adding a new error type, update lighthouse-result.proto too.
