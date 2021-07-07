@@ -21,12 +21,16 @@ const LoadFailureMode = {
   warn: /** @type {'warn'} */ ('warn'),
 };
 
+const DocErrorCodeMode = {
+  error: /** @type {'error'} */ ('error'),
+};
+
 describe('#getNetworkError', () => {
   /**
    * @param {NetworkRequest=} mainRecord
    */
   function getAndExpectError(mainRecord) {
-    const error = getNetworkError(mainRecord);
+    const error = getNetworkError(mainRecord, DocErrorCodeMode.error);
     if (!error) throw new Error('expected a network error');
     return error;
   }
@@ -35,7 +39,7 @@ describe('#getNetworkError', () => {
     const url = 'http://the-page.com';
     const mainRecord = new NetworkRequest();
     mainRecord.url = url;
-    expect(getNetworkError(mainRecord)).toBeUndefined();
+    expect(getNetworkError(mainRecord, DocErrorCodeMode.error)).toBeUndefined();
   });
 
   it('fails when page fails to load', () => {
@@ -193,13 +197,13 @@ describe('#getNonHtmlError', () => {
    * @param {NetworkRequest} mainRecord
    */
   function getAndExpectError(mainRecord) {
-    const error = getNonHtmlError(mainRecord);
+    const error = getNonHtmlError(mainRecord, undefined);
     if (!error) throw new Error('expected a non-HTML error');
     return error;
   }
 
   it('passes when the page was not requested', () => {
-    expect(getNonHtmlError(undefined)).toBeUndefined();
+    expect(getNonHtmlError(undefined, undefined)).toBeUndefined();
   });
 
   it('passes when the page is of MIME type text/html', () => {
@@ -208,7 +212,7 @@ describe('#getNonHtmlError', () => {
     const mimeType = 'text/html';
     mainRecord.url = url;
     mainRecord.mimeType = mimeType;
-    expect(getNonHtmlError(mainRecord)).toBeUndefined();
+    expect(getNonHtmlError(mainRecord, undefined)).toBeUndefined();
   });
 
   it('fails when the page is not of MIME type text/html', () => {
@@ -248,6 +252,7 @@ describe('#getPageLoadError', () => {
       url: 'http://the-page.com',
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
+      docErrorCodeMode: DocErrorCodeMode.error,
     };
     mainRecord.url = context.url;
     mainRecord.mimeType = 'text/html';
@@ -261,6 +266,7 @@ describe('#getPageLoadError', () => {
       url: 'http://example.com/#/page/list',
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
+      docErrorCodeMode: DocErrorCodeMode.error,
     };
     mainRecord.url = 'http://example.com';
     mainRecord.mimeType = 'text/html';
@@ -274,6 +280,7 @@ describe('#getPageLoadError', () => {
       url: 'http://the-page.com',
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.ignore,
+      docErrorCodeMode: DocErrorCodeMode.error,
     };
     mainRecord.url = context.url;
     mainRecord.failed = true;
@@ -288,6 +295,7 @@ describe('#getPageLoadError', () => {
       url: 'http://the-page.com',
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
+      docErrorCodeMode: DocErrorCodeMode.error,
     };
     const finalRecord = new NetworkRequest();
 
@@ -307,6 +315,7 @@ describe('#getPageLoadError', () => {
       url: 'http://the-page.com',
       networkRecords: [mainRecord, interstitialRecord],
       loadFailureMode: LoadFailureMode.fatal,
+      docErrorCodeMode: DocErrorCodeMode.error,
     };
 
     mainRecord.url = context.url;
@@ -324,6 +333,7 @@ describe('#getPageLoadError', () => {
       url: 'http://the-page.com',
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
+      docErrorCodeMode: DocErrorCodeMode.error,
     };
 
     mainRecord.url = context.url;
@@ -339,6 +349,7 @@ describe('#getPageLoadError', () => {
       url: 'http://the-page.com',
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
+      docErrorCodeMode: DocErrorCodeMode.error,
     };
 
     mainRecord.url = context.url;
@@ -354,6 +365,7 @@ describe('#getPageLoadError', () => {
       url: 'http://the-page.com',
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
+      docErrorCodeMode: DocErrorCodeMode.error,
     };
 
     mainRecord.url = context.url;
@@ -369,6 +381,7 @@ describe('#getPageLoadError', () => {
       url: 'http://the-page.com',
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.warn,
+      docErrorCodeMode: DocErrorCodeMode.error,
     };
 
     mainRecord.url = context.url;
@@ -384,6 +397,7 @@ describe('#getPageLoadError', () => {
       url: 'http://the-page.com',
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
+      docErrorCodeMode: DocErrorCodeMode.error,
     };
     const finalRecord = new NetworkRequest();
 

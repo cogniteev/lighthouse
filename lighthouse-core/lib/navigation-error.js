@@ -11,9 +11,10 @@ const NetworkAnalyzer = require('./dependency-graph/simulator/network-analyzer.j
 /**
  * Returns an error if the original network request failed or wasn't found.
  * @param {LH.Artifacts.NetworkRequest|undefined} mainRecord
+ * @param {string|undefined} docErrorCodeMode
  * @return {LH.LighthouseError|undefined}
  */
-function getNetworkError(mainRecord) {
+function getNetworkError(mainRecord, docErrorCodeMode) {
   if (!mainRecord) {
     return new LHError(LHError.errors.NO_DOCUMENT_REQUEST);
   } else if (mainRecord.failed) {
@@ -29,7 +30,7 @@ function getNetworkError(mainRecord) {
     } else {
       return new LHError(LHError.errors.FAILED_DOCUMENT_REQUEST, {errorDetails: netErr});
     }
-  } else if (mainRecord.hasErrorStatusCode()) {
+  } else if (mainRecord.hasErrorStatusCode() && docErrorCodeMode !== 'ignore') {
     return new LHError(LHError.errors.ERRORED_DOCUMENT_REQUEST, {
       statusCode: `${mainRecord.statusCode}`,
     });
@@ -94,11 +95,11 @@ function getNonHtmlError(finalRecord) {
  * Returns an error if the page load should be considered failed, e.g. from a
  * main document request failure, a security issue, etc.
  * @param {LH.LighthouseError|undefined} navigationError
- * @param {{url: string, loadFailureMode: LH.Gatherer.PassContext['passConfig']['loadFailureMode'], networkRecords: Array<LH.Artifacts.NetworkRequest>}} context
+ * @param {{url: string, loadFailureMode: LH.Gatherer.PassContext['passConfig']['loadFailureMode'], docErrorCodeMode: LH.Gatherer.PassContext['passConfig']['docErrorCodeMode'], networkRecords: Array<LH.Artifacts.NetworkRequest>}} context
  * @return {LH.LighthouseError|undefined}
  */
 function getPageLoadError(navigationError, context) {
-  const {url, loadFailureMode, networkRecords} = context;
+  const {url, loadFailureMode, docErrorCodeMode, networkRecords} = context;
   /** @type {LH.Artifacts.NetworkRequest|undefined} */
   let mainRecord;
   try {
@@ -111,7 +112,7 @@ function getPageLoadError(navigationError, context) {
     finalRecord = NetworkAnalyzer.resolveRedirects(mainRecord);
   }
 
-  const networkError = getNetworkError(mainRecord);
+  const networkError = getNetworkError(mainRecord, docErrorCodeMode);
   const interstitialError = getInterstitialError(mainRecord, networkRecords);
   const nonHtmlError = getNonHtmlError(finalRecord);
 

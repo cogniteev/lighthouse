@@ -141,6 +141,7 @@ async function _computeNavigationResult(
     ? getPageLoadError(navigationError, {
       url: finalUrl,
       loadFailureMode: navigationContext.navigation.loadFailureMode,
+      docErrorCodeMode: navigationContext.navigation.docErrorCodeMode,
       networkRecords,
     })
     : navigationError;

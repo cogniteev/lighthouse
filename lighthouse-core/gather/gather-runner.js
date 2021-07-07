@@ -582,6 +582,7 @@ class GatherRunner {
     const pageLoadError = getPageLoadError(possibleNavError, {
       url: passContext.url,
       loadFailureMode: passConfig.loadFailureMode,
+      docErrorCodeMode: passConfig.docErrorCodeMode,
       networkRecords: loadData.networkRecords,
     });
     if (pageLoadError) {
