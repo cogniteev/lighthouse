@@ -142,6 +142,7 @@ async function _computeNavigationResult(
       url: finalUrl,
       loadFailureMode: navigationContext.navigation.loadFailureMode,
       docErrorCodeMode: navigationContext.navigation.docErrorCodeMode,
+      nonHtmlErrorMode: navigationContext.navigation.nonHtmlErrorMode,
       networkRecords,
     })
     : navigationError;

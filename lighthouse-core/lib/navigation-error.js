@@ -73,9 +73,10 @@ function getInterstitialError(mainRecord, networkRecords) {
  * Returns an error if we try to load a non-HTML page.
  * Expects a network request with all redirects resolved, otherwise the MIME type may be incorrect.
  * @param {LH.Artifacts.NetworkRequest|undefined} finalRecord
+ * @param {string|undefined} nonHtmlErrorMode
  * @return {LH.LighthouseError|undefined}
  */
-function getNonHtmlError(finalRecord) {
+function getNonHtmlError(finalRecord, nonHtmlErrorMode) {
   // MIME types are case-insenstive but Chrome normalizes MIME types to be lowercase.
   const HTML_MIME_TYPE = 'text/html';
 
@@ -84,7 +85,7 @@ function getNonHtmlError(finalRecord) {
 
   // mimeType is determined by the browser, we assume Chrome is determining mimeType correctly,
   // independently of 'Content-Type' response headers, and always sending mimeType if well-formed.
-  if (HTML_MIME_TYPE !== finalRecord.mimeType) {
+  if (HTML_MIME_TYPE !== finalRecord.mimeType && nonHtmlErrorMode !== 'ignore') {
     return new LHError(LHError.errors.NOT_HTML, {mimeType: finalRecord.mimeType});
   }
 
@@ -95,11 +96,11 @@ function getNonHtmlError(finalRecord) {
  * Returns an error if the page load should be considered failed, e.g. from a
  * main document request failure, a security issue, etc.
  * @param {LH.LighthouseError|undefined} navigationError
- * @param {{url: string, loadFailureMode: LH.Gatherer.PassContext['passConfig']['loadFailureMode'], docErrorCodeMode: LH.Gatherer.PassContext['passConfig']['docErrorCodeMode'], networkRecords: Array<LH.Artifacts.NetworkRequest>}} context
+ * @param {{url: string, loadFailureMode: LH.Gatherer.PassContext['passConfig']['loadFailureMode'], docErrorCodeMode: LH.Gatherer.PassContext['passConfig']['docErrorCodeMode'], nonHtmlErrorMode: LH.Gatherer.PassContext['passConfig']['nonHtmlErrorMode'], networkRecords: Array<LH.Artifacts.NetworkRequest>}} context
  * @return {LH.LighthouseError|undefined}
  */
 function getPageLoadError(navigationError, context) {
-  const {url, loadFailureMode, docErrorCodeMode, networkRecords} = context;
+  const {url, loadFailureMode, docErrorCodeMode, nonHtmlErrorMode, networkRecords} = context;
   /** @type {LH.Artifacts.NetworkRequest|undefined} */
   let mainRecord;
   try {
@@ -114,7 +115,7 @@ function getPageLoadError(navigationError, context) {
 
   const networkError = getNetworkError(mainRecord, docErrorCodeMode);
   const interstitialError = getInterstitialError(mainRecord, networkRecords);
-  const nonHtmlError = getNonHtmlError(finalRecord);
+  const nonHtmlError = getNonHtmlError(finalRecord, nonHtmlErrorMode);
 
   // Check to see if we need to ignore the page load failure.
   // e.g. When the driver is offline, the load will fail without page offline support.

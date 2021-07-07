@@ -25,6 +25,10 @@ const DocErrorCodeMode = {
   error: /** @type {'error'} */ ('error'),
 };
 
+const NonHtmlErrorMode = {
+  error: /** @type {'error'} */ ('error'),
+};
+
 describe('#getNetworkError', () => {
   /**
    * @param {NetworkRequest=} mainRecord
@@ -197,13 +201,13 @@ describe('#getNonHtmlError', () => {
    * @param {NetworkRequest} mainRecord
    */
   function getAndExpectError(mainRecord) {
-    const error = getNonHtmlError(mainRecord, undefined);
+    const error = getNonHtmlError(mainRecord, NonHtmlErrorMode.error);
     if (!error) throw new Error('expected a non-HTML error');
     return error;
   }
 
   it('passes when the page was not requested', () => {
-    expect(getNonHtmlError(undefined, undefined)).toBeUndefined();
+    expect(getNonHtmlError(undefined, NonHtmlErrorMode.error)).toBeUndefined();
   });
 
   it('passes when the page is of MIME type text/html', () => {
@@ -212,7 +216,7 @@ describe('#getNonHtmlError', () => {
     const mimeType = 'text/html';
     mainRecord.url = url;
     mainRecord.mimeType = mimeType;
-    expect(getNonHtmlError(mainRecord, undefined)).toBeUndefined();
+    expect(getNonHtmlError(mainRecord, NonHtmlErrorMode.error)).toBeUndefined();
   });
 
   it('fails when the page is not of MIME type text/html', () => {
@@ -253,6 +257,7 @@ describe('#getPageLoadError', () => {
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
       docErrorCodeMode: DocErrorCodeMode.error,
+      nonHtmlErrorMode: NonHtmlErrorMode.error,
     };
     mainRecord.url = context.url;
     mainRecord.mimeType = 'text/html';
@@ -267,6 +272,7 @@ describe('#getPageLoadError', () => {
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
       docErrorCodeMode: DocErrorCodeMode.error,
+      nonHtmlErrorMode: NonHtmlErrorMode.error,
     };
     mainRecord.url = 'http://example.com';
     mainRecord.mimeType = 'text/html';
@@ -281,6 +287,7 @@ describe('#getPageLoadError', () => {
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.ignore,
       docErrorCodeMode: DocErrorCodeMode.error,
+      nonHtmlErrorMode: NonHtmlErrorMode.error,
     };
     mainRecord.url = context.url;
     mainRecord.failed = true;
@@ -296,6 +303,7 @@ describe('#getPageLoadError', () => {
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
       docErrorCodeMode: DocErrorCodeMode.error,
+      nonHtmlErrorMode: NonHtmlErrorMode.error,
     };
     const finalRecord = new NetworkRequest();
 
@@ -316,6 +324,7 @@ describe('#getPageLoadError', () => {
       networkRecords: [mainRecord, interstitialRecord],
       loadFailureMode: LoadFailureMode.fatal,
       docErrorCodeMode: DocErrorCodeMode.error,
+      nonHtmlErrorMode: NonHtmlErrorMode.error,
     };
 
     mainRecord.url = context.url;
@@ -334,6 +343,7 @@ describe('#getPageLoadError', () => {
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
       docErrorCodeMode: DocErrorCodeMode.error,
+      nonHtmlErrorMode: NonHtmlErrorMode.error,
     };
 
     mainRecord.url = context.url;
@@ -350,6 +360,7 @@ describe('#getPageLoadError', () => {
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
       docErrorCodeMode: DocErrorCodeMode.error,
+      nonHtmlErrorMode: NonHtmlErrorMode.error,
     };
 
     mainRecord.url = context.url;
@@ -366,6 +377,7 @@ describe('#getPageLoadError', () => {
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
       docErrorCodeMode: DocErrorCodeMode.error,
+      nonHtmlErrorMode: NonHtmlErrorMode.error,
     };
 
     mainRecord.url = context.url;
@@ -382,6 +394,7 @@ describe('#getPageLoadError', () => {
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.warn,
       docErrorCodeMode: DocErrorCodeMode.error,
+      nonHtmlErrorMode: NonHtmlErrorMode.error,
     };
 
     mainRecord.url = context.url;
@@ -398,6 +411,7 @@ describe('#getPageLoadError', () => {
       networkRecords: [mainRecord],
       loadFailureMode: LoadFailureMode.fatal,
       docErrorCodeMode: DocErrorCodeMode.error,
+      nonHtmlErrorMode: NonHtmlErrorMode.error,
     };
     const finalRecord = new NetworkRequest();
 

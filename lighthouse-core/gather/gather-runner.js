@@ -583,6 +583,7 @@ class GatherRunner {
       url: passContext.url,
       loadFailureMode: passConfig.loadFailureMode,
       docErrorCodeMode: passConfig.docErrorCodeMode,
+      nonHtmlErrorMode: passConfig.nonHtmlErrorMode,
       networkRecords: loadData.networkRecords,
     });
     if (pageLoadError) {
