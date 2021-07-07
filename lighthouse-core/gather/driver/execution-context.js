@@ -80,7 +80,7 @@ class ExecutionContext {
     // Otherwise, use whatever was requested.
     const timeout = this._session.hasNextProtocolTimeout() ?
       this._session.getNextProtocolTimeout() :
-      60000;
+      this._session.getDefaultProtocolTimeout() * 2;
 
     const evaluationParams = {
       // We need to explicitly wrap the raw expression for several purposes:

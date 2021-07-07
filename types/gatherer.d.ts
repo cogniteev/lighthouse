@@ -19,6 +19,8 @@ declare global {
       hasNextProtocolTimeout(): boolean;
       getNextProtocolTimeout(): number;
       setNextProtocolTimeout(ms: number): void;
+      getDefaultProtocolTimeout(): number;
+      setDefaultProtocolTimeout(ms: number): void;
       on<TEvent extends keyof LH.CrdpEvents>(event: TEvent, callback: (...args: LH.CrdpEvents[TEvent]) => void): void;
       once<TEvent extends keyof LH.CrdpEvents>(event: TEvent, callback: (...args: LH.CrdpEvents[TEvent]) => void): void;
       addProtocolMessageListener(callback: (payload: LH.Protocol.RawEventMessage) => void): void

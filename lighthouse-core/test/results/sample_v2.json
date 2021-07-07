@@ -4839,6 +4839,7 @@
     "auditMode": true,
     "gatherMode": false,
     "disableStorageReset": false,
+    "protocolTimeoutMs": 30000,
     "channel": "cli",
     "budgets": [
       {

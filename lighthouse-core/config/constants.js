@@ -96,6 +96,7 @@ const defaultSettings = {
   output: 'json',
   maxWaitForFcp: 30 * 1000,
   maxWaitForLoad: 45 * 1000,
+  protocolTimeoutMs: 30 * 1000,
 
   formFactor: 'mobile',
   throttling: throttling.mobileSlow4G,

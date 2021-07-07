@@ -156,6 +156,10 @@ class GatherRunner {
     // TODO(FR-COMPAT): re-evaluate the necessity of this check
     await GatherRunner.assertNoSameOriginServiceWorkerClients(session, options.requestedUrl);
 
+    if (typeof options.settings.protocolTimeoutMs === 'number') {
+      await driver.setDefaultProtocolTimeout(options.settings.protocolTimeoutMs);
+    }
+
     await prepare.prepareTargetForNavigationMode(driver, options.settings);
 
     log.timeEnd(status);
