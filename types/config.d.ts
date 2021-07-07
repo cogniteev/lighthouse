@@ -76,6 +76,12 @@ declare global {
          * Ignore means Lighthouse will try run normally
          */
         nonHtmlErrorMode?: 'error'|'ignore';
+        /**
+         * Controls the behavior when the page is considered hung
+         * Error means Lighthouse will tread it as a runtimeError
+         * Ignore means Lighthouse will run normally on the page as is
+         */
+        pageHungMode?: 'error'|'ignore';
         /** The number of milliseconds to wait after FCP until the page should be considered loaded. */
         pauseAfterFcpMs?: number;
         /** The number of milliseconds to wait after the load event until the page should be considered loaded. */

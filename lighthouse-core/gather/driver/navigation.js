@@ -25,6 +25,10 @@ const UIStrings = {
    */
   warningTimeout: 'The page loaded too slowly to finish within the time limit. ' +
   'Results may be incomplete.',
+  /**
+   * @description Warning that Lighthouse had a page unresponsive to commands.
+   */
+  warningPageHung: 'The page was not responding. Results may be incomplete.',
 };
 
 const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
@@ -98,12 +102,12 @@ async function gotoURL(driver, url, options) {
   const waitForLoad = options.waitUntil.includes('load');
   const waitForFcp = options.waitUntil.includes('fcp');
 
-  /** @type {Array<Promise<{timedOut: boolean}>>} */
+  /** @type {Array<Promise<{timedOut: boolean, pageHung: boolean}>>} */
   const waitConditionPromises = [];
 
   if (waitForNavigated) {
     const navigatedPromise = waitForFrameNavigated(session).promise;
-    waitConditionPromises.push(navigatedPromise.then(() => ({timedOut: false})));
+    waitConditionPromises.push(navigatedPromise.then(() => ({timedOut: false, pageHung: false})));
   }
 
   if (waitForLoad) {
@@ -115,6 +119,7 @@ async function gotoURL(driver, url, options) {
 
   const waitConditions = await Promise.all(waitConditionPromises);
   const timedOut = waitConditions.some(condition => condition.timedOut);
+  const pageHung = waitConditions.some(condition => condition.pageHung);
   const finalUrl = (await networkMonitor.getFinalNavigationUrl()) || url;
 
   // Bring `Page.navigate` errors back into the promise chain. See https://github.com/GoogleChrome/lighthouse/pull/6739.
@@ -123,12 +128,12 @@ async function gotoURL(driver, url, options) {
 
   return {
     finalUrl,
-    warnings: getNavigationWarnings({timedOut, finalUrl, requestedUrl: url}),
+    warnings: getNavigationWarnings({timedOut, pageHung, finalUrl, requestedUrl: url}),
   };
 }
 
 /**
- * @param {{timedOut: boolean, requestedUrl: string, finalUrl: string; }} navigation
+ * @param {{timedOut: boolean, pageHung: boolean, requestedUrl: string, finalUrl: string }} navigation
  * @return {Array<LH.IcuMessage>}
  */
 function getNavigationWarnings(navigation) {
@@ -137,6 +142,7 @@ function getNavigationWarnings(navigation) {
   const warnings = [];
 
   if (navigation.timedOut) warnings.push(str_(UIStrings.warningTimeout));
+  if (navigation.pageHung) warnings.push(str_(UIStrings.warningPageHung));
 
   if (
     !URL.equalWithExcludedFragments(requestedUrl, finalUrl) &&
