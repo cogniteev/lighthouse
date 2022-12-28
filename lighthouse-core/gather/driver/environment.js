@@ -51,9 +51,15 @@ async function getBrowserVersion(session) {
 async function getBenchmarkIndex(executionContext) {
   const status = {msg: 'Benchmarking machine', id: 'lh:gather:getBenchmarkIndex'};
   log.time(status);
-  const indexVal = await executionContext.evaluate(pageFunctions.computeBenchmarkIndex, {
-    args: [],
-  });
+  let indexVal;
+  try {
+    indexVal = await executionContext.evaluate(pageFunctions.computeBenchmarkIndex, {
+      args: [],
+    });
+  } catch (err) {
+    log.warn('Benchmarking machine', `Failed to get BenchmarkIndex: ${err.message}`);
+    indexVal = 1000;
+  }
   log.timeEnd(status);
   return indexVal;
 }

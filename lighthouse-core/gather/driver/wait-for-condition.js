@@ -247,7 +247,10 @@ function waitForCPUIdle(session, waitForCPUQuiet) {
   const promise = new Promise((resolve, reject) => {
     executionContext.evaluate(registerPerformanceObserverInPage, {args: []})
       .then(() => checkForQuiet(executionContext, resolve))
-      .catch(reject);
+      .catch((err) => {
+        log.warn('waitFor', `Failed to check for quiet: ${err.message}`);
+        resolve();
+      });
     cancel = () => {
       if (canceled) return;
       canceled = true;

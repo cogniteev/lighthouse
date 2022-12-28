@@ -99,9 +99,13 @@ class Stacks extends FRGatherer {
     const status = {msg: 'Collect stacks', id: 'lh:gather:collectStacks'};
     log.time(status);
 
+    /** @type {JSLibrary[]} */
     const jsLibraries = await executionContext.evaluate(detectLibraries, {
       args: [],
       deps: [libDetectorSource],
+    }).catch((err) => {
+      log.warn('Collect stacks', `Failed to collect stacks: ${err.message}`);
+      return [];
     });
 
     /** @type {LH.Artifacts['Stacks']} */
