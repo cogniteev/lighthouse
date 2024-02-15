@@ -127,6 +127,9 @@ export type ScreenEmulationSettings = {
 
   /** Disables failing on 404 status code, and instead issues a warning */
   ignoreStatusCode?: boolean;
+
+  /** Disables failing on unexpected content type, and instead issues a warning */
+  ignoreContentType?: boolean;
 }
 
 export interface ConfigSettings extends Required<SharedFlagsSettings> {

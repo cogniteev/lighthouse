@@ -722,6 +722,8 @@ function checkKnownFixedCollisions(strings) {
       'Failing Elements',
       'Lighthouse was unable to reliably load the page you requested. Make sure you are testing the correct URL and that the server is properly responding to all requests. (Status code: $ICU_0$)',
       'Lighthouse was unable to reliably load the page you requested. Make sure you are testing the correct URL and that the server is properly responding to all requests. (Status code: $ICU_0$)',
+      'Lighthouse was unable to reliably load the page you requested. Make sure you are testing the correct URL and that the server is properly responding to all requests. (Content type: $ICU_0$)',
+      'Lighthouse was unable to reliably load the page you requested. Make sure you are testing the correct URL and that the server is properly responding to all requests. (Content type: $ICU_0$)',
       'Name',
       'Name',
       'Pages that use portals are not currently eligible for back/forward cache.',

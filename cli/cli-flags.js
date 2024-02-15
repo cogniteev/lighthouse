@@ -208,12 +208,17 @@ function getYargsParser(manualArgv) {
         type: 'boolean',
         describe: 'Disables failing on all error status codes, and instead issues a warning.',
       },
+      'ignore-content-type': {
+        type: 'boolean',
+        describe: 'Disables failing on unexpected content type, and instead issues a warning.',
+      },
     })
     .group([
       'save-assets', 'list-all-audits', 'list-locales', 'list-trace-categories', 'additional-trace-categories',
       'config-path', 'preset', 'chrome-flags', 'port', 'hostname', 'form-factor', 'screenEmulation', 'emulatedUserAgent',
       'max-wait-for-load', 'enable-error-reporting', 'gather-mode', 'audit-mode',
       'only-audits', 'only-categories', 'skip-audits', 'budget-path', 'disable-full-page-screenshot', 'ignore-status-code',
+      'ignore-content-type',
     ], 'Configuration:')
 
     // Output
