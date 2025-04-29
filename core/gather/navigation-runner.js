@@ -146,6 +146,7 @@ async function _computeNavigationResult(
     ? getPageLoadError(navigationError, {
       url: mainDocumentUrl,
       ignoreStatusCode: navigationContext.resolvedConfig.settings.ignoreStatusCode,
+      ignoreMimeType: navigationContext.resolvedConfig.settings.ignoreMimeType,
       networkRecords: debugData.records,
       warnings: navigationContext.baseArtifacts.LighthouseRunWarnings,
     })
