@@ -227,13 +227,13 @@ describe('#getNonHtmlError', () => {
    * @param {NetworkRequest} mainRecord
    */
   function getAndExpectError(mainRecord) {
-    const error = getNonHtmlError(mainRecord);
+    const error = getNonHtmlError(mainRecord, {warnings: []});
     if (!error) throw new Error('expected a non-HTML error');
     return error;
   }
 
   it('passes when the page was not requested', () => {
-    expect(getNonHtmlError(undefined)).toBeUndefined();
+    expect(getNonHtmlError(undefined, {warnings: []})).toBeUndefined();
   });
 
   it('passes when the page is of MIME type text/html', () => {
@@ -242,7 +242,7 @@ describe('#getNonHtmlError', () => {
     const mimeType = 'text/html';
     mainRecord.url = url;
     mainRecord.mimeType = mimeType;
-    expect(getNonHtmlError(mainRecord)).toBeUndefined();
+    expect(getNonHtmlError(mainRecord, {warnings: []})).toBeUndefined();
   });
 
   it('passes when the page is of MIME type application/xhtml+xml', () => {
@@ -251,7 +251,7 @@ describe('#getNonHtmlError', () => {
     const mimeType = 'application/xhtml+xml';
     mainRecord.url = url;
     mainRecord.mimeType = mimeType;
-    expect(getNonHtmlError(mainRecord)).toBeUndefined();
+    expect(getNonHtmlError(mainRecord, {warnings: []})).toBeUndefined();
   });
 
   it('passes when the page document did not load', () => {
@@ -260,7 +260,7 @@ describe('#getNonHtmlError', () => {
     mainRecord.statusCode = -1;
     mainRecord.url = url;
     mainRecord.mimeType = '';
-    expect(getNonHtmlError(mainRecord)).toBeUndefined();
+    expect(getNonHtmlError(mainRecord, {warnings: []})).toBeUndefined();
   });
 
   it('fails when the page is not of MIME type text/html', () => {
