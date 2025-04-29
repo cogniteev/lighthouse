@@ -19,7 +19,7 @@ import {NetworkRequest} from '../../lib/network-request.js';
 import UrlUtils from '../../lib/url-utils.js';
 
 /** @typedef {import('../../lib/network-recorder.js').NetworkRecorderEventMap} NetworkRecorderEventMap */
-/** @typedef {'network-2-idle'|'network-critical-idle'|'networkidle'|'networkbusy'|'network-critical-busy'|'network-2-busy'} NetworkMonitorEvent_ */
+/** @typedef {'network-2-idle'|'network-critical-idle'|'networkidle'|'networkbusy'|'network-critical-busy'|'network-2-busy'|'network-navigation-aborted'} NetworkMonitorEvent_ */
 /** @typedef {Record<NetworkMonitorEvent_, []> & NetworkRecorderEventMap} NetworkMonitorEventMap */
 /** @typedef {keyof NetworkMonitorEventMap} NetworkMonitorEvent */
 /** @typedef {LH.Protocol.StrictEventEmitterClass<NetworkMonitorEventMap>} NetworkMonitorEmitter */
@@ -156,6 +156,24 @@ class NetworkMonitor extends NetworkMonitorEventEmitter {
   }
 
   /**
+   * Returns whether the navigation was aborted
+   */
+  isNavigationAborted() {
+    if (!this._networkRecorder) return false;
+    const requests = this._networkRecorder.getRawRecords();
+    const rootFrameRequest = requests.find(r => r.resourceType === 'Document');
+    const rootFrameId = rootFrameRequest && rootFrameRequest.frameId;
+
+    return requests.some(req =>
+      req.resourceType === 'Document' &&
+      req.frameId === rootFrameId &&
+      (req.priority === 'VeryHigh' || req.priority === 'High') &&
+      req.finished &&
+      req.failed
+    );
+  }
+
+  /**
    * Returns whether the network is semi-idle (i.e. there are 2 or fewer inflight network requests).
    */
   is2Idle() {
@@ -192,10 +210,14 @@ class NetworkMonitor extends NetworkMonitorEventEmitter {
     const zeroQuiet = this.isIdle();
     const twoQuiet = this.is2Idle();
     const criticalQuiet = this.isCriticalIdle();
+    const navigationAborted = this.isNavigationAborted();
 
     this.emit(zeroQuiet ? 'networkidle' : 'networkbusy');
     this.emit(twoQuiet ? 'network-2-idle' : 'network-2-busy');
     this.emit(criticalQuiet ? 'network-critical-idle' : 'network-critical-busy');
+    if (navigationAborted) {
+      this.emit('network-navigation-aborted');
+    }
 
     if (twoQuiet && zeroQuiet) log.verbose('NetworkRecorder', 'network fully-quiet');
     else if (twoQuiet && !zeroQuiet) log.verbose('NetworkRecorder', 'network semi-quiet');
