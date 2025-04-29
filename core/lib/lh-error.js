@@ -94,6 +94,9 @@ const UIStrings = {
 
   /** Error message explaining that the browser tab that Lighthouse is inspecting has crashed. */
   targetCrashed: 'Browser tab has unexpectedly crashed.',
+
+  /** Error message explaining that auditing the webpage has taken longer than the maximum time. */
+  auditsTimeout: 'Auditing content has exceeded the allotted time',
 };
 
 const str_ = i18n.createIcuMessageFn(import.meta.url, UIStrings);
@@ -430,6 +433,15 @@ const ERRORS = {
   TARGET_CRASHED: {
     code: 'TARGET_CRASHED',
     message: UIStrings.targetCrashed,
+    lhrRuntimeError: true,
+  },
+
+  /**
+   * Reached audits timeout before the end of execution.
+   */
+  AUDITS_TIMEOUT: {
+    code: 'AUDITS_TIMEOUT',
+    message: UIStrings.auditsTimeout,
     lhrRuntimeError: true,
   },
 

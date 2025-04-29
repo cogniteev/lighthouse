@@ -69,6 +69,9 @@ export type ScreenEmulationSettings = {
   gatherMode?: boolean | string;
   /** Flag indicating that the browser storage should not be reset for the audit. */
   disableStorageReset?: boolean;
+  /** Controls how long to wait for the execution of all audits.**/
+  auditsTimeoutMs?: number;
+
   /**
    * Flag indicating which kinds of browser storage should be reset for the audit.
    * Cookies are not cleared by default, so the user isn't logged out.
