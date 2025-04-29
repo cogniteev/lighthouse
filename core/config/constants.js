@@ -74,6 +74,7 @@ const defaultSettings = {
   skipAboutBlank: false,
   blankPage: 'about:blank',
   ignoreStatusCode: false,
+  ignoreMimeType: false,
 
   // the following settings have no defaults but we still want ensure that `key in settings`
   // in config will work in a typechecked way

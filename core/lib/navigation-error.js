@@ -23,6 +23,11 @@ const UIStrings = {
   warningStatusCode: 'Lighthouse was unable to reliably load the page you requested. Make sure' +
     ' you are testing the correct URL and that the server is properly responding' +
     ' to all requests. (Status code: {errorCode})',
+  /**
+   * Warning shown in report when the page under test is neither HTML nor XHTML
+   */
+  warningMimeType: 'The page MIME type is neither HTML or XHTML: Lighthouse does not explicitly' +
+    ' support this document type (Mime type: {mimeType})',
 };
 
 const str_ = i18n.createIcuMessageFn(import.meta.url, UIStrings);
@@ -101,9 +106,10 @@ function getInterstitialError(mainRecord, networkRecords) {
  * Returns an error if we try to load a non-HTML page.
  * Expects a network request with all redirects resolved, otherwise the MIME type may be incorrect.
  * @param {LH.Artifacts.NetworkRequest|undefined} finalRecord
+ * @param {{warnings: Array<string | LH.IcuMessage>, ignoreMimeType?: LH.Config.Settings['ignoreMimeType']}} context
  * @return {LH.LighthouseError|undefined}
  */
-function getNonHtmlError(finalRecord) {
+function getNonHtmlError(finalRecord, context) {
   // If we never requested a document, there's no doctype error, let other cases handle it.
   if (!finalRecord) return undefined;
 
@@ -113,9 +119,12 @@ function getNonHtmlError(finalRecord) {
   // mimeType is determined by the browser, we assume Chrome is determining mimeType correctly,
   // independently of 'Content-Type' response headers, and always sending mimeType if well-formed.
   if (finalRecord.mimeType !== HTML_MIME_TYPE && finalRecord.mimeType !== XHTML_MIME_TYPE) {
-    return new LighthouseError(LighthouseError.errors.NOT_HTML, {
-      mimeType: finalRecord.mimeType,
-    });
+    if (!context.ignoreMimeType) {
+      return new LighthouseError(LighthouseError.errors.NOT_HTML, {
+        mimeType: finalRecord.mimeType,
+      });
+    }
+    context.warnings.push(str_(UIStrings.warningMimeType, {mimeType: finalRecord.mimeType}));
   }
 
   return undefined;
@@ -125,7 +134,7 @@ function getNonHtmlError(finalRecord) {
  * Returns an error if the page load should be considered failed, e.g. from a
  * main document request failure, a security issue, etc.
  * @param {LH.LighthouseError|undefined} navigationError
- * @param {{url: string, ignoreStatusCode?: LH.Config.Settings['ignoreStatusCode'], networkRecords: Array<LH.Artifacts.NetworkRequest>, warnings: Array<string | LH.IcuMessage>}} context
+ * @param {{url: string, ignoreStatusCode?: LH.Config.Settings['ignoreStatusCode'], ignoreMimeType?: LH.Config.Settings['ignoreMimeType'], networkRecords: Array<LH.Artifacts.NetworkRequest>, warnings: Array<string | LH.IcuMessage>}} context
  * @return {LH.LighthouseError|undefined}
  */
 function getPageLoadError(navigationError, context) {
@@ -161,7 +170,7 @@ function getPageLoadError(navigationError, context) {
 
   const networkError = getNetworkError(mainRecord, context);
   const interstitialError = getInterstitialError(mainRecord, networkRecords);
-  const nonHtmlError = getNonHtmlError(finalRecord);
+  const nonHtmlError = getNonHtmlError(finalRecord, context);
 
   // We want to special-case the interstitial beyond FAILED_DOCUMENT_REQUEST. See https://github.com/GoogleChrome/lighthouse/pull/8865#issuecomment-497507618
   if (interstitialError) return interstitialError;
