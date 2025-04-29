@@ -56,6 +56,7 @@ const defaultSettings = {
   pauseAfterLoadMs: 1000,
   networkQuietThresholdMs: 1000,
   cpuQuietThresholdMs: 1000,
+  auditsTimeoutMs: 60 * 1000,
 
   formFactor: 'mobile',
   throttling: throttling.mobileSlow4G,
