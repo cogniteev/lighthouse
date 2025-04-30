@@ -1,5 +1,5 @@
 {
-  "name": "lighthouse",
+  "name": "@oncrawl/lighthouse",
   "type": "module",
   "version": "13.0.0",
   "description": "Automated auditing, performance metrics, and best practices for the web.",
