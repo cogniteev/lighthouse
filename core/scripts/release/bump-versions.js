@@ -11,7 +11,7 @@ import glob from 'glob';
 import {readJson} from '../../test/test-utils.js';
 
 const NEW_VERSION = process.argv[2];
-if (!/^\d+\.\d+\.\d+(-dev\.\d{8})?$/.test(NEW_VERSION)) {
+if (!/^\d+\.\d+\.\d+(-(dev|patch)\.\d{1,8})?$/.test(NEW_VERSION)) {
   throw new Error('Usage: node bump-versions.json x.x.x');
 }
 
